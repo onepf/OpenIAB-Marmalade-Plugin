@@ -11,6 +11,6 @@ files
 
 librarypath "$MARMALADE_ROOT/s3e/deploy/plugins/android/android.jar"
 librarypath "$MARMALADE_ROOT/s3e/loader/android/s3e_release.jar"
-librarypath "../bin/openiab-amazon.jar"
+librarypath "../OpenIAB/library/build/intermediates/bundles/complete/release/classes.jar"
 
 option output-name=lib/android/s3eOpenIab.jar
