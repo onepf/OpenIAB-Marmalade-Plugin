@@ -1,5 +1,3 @@
-// This is just Marmalade stuff
-
 #include "IwDebug.h"
 #include "s3e.h"
 #include "IwNUI.h"
@@ -7,7 +5,7 @@
 
 const CColour COLOUR_GREY       (0xffC9C0BC);
 
-bool ListBoxSelect(void *pData,CListBox* list, int item)
+bool ListBoxSelect(void *pData, CListBox* list, int item)
 {
 	list->SetAttribute("selected",0); // reset selection
 	return true;
@@ -27,52 +25,56 @@ ExampleUI::ExampleUI()
                                    .Set("height",      "100%")
                                    .Set("backgroundColour", COLOUR_GREY)); 
     view->AddChild(grayView);   
+	
 	// buttons
-    CButtonPtr button1 = CreateButton(CAttributes()
-                                      .Set("name",    "Button1")
-                                      .Set("caption", "Query Shop")
+    _initButton = CreateButton(CAttributes()
+                                      .Set("name",    "initButton")
+                                      .Set("caption", "Initialize OpenIAB")
                                       .Set("x1", "5%")
                                       .Set("y1", "5%")
                                       .Set("alignW",  "left")
-									  .Set("visible", true)
-                                      );   
-    button1->SetEventHandler("click", (void*)this, &OnButton1Click);   
-    CButtonPtr button2 = CreateButton(CAttributes()
-                                      .Set("name",    "Button2")
-                                      .Set("caption", "Restore Purchases")
-                                      .Set("x1", "5%")
-                                      .Set("y1", "15%")
-                                      .Set("alignW",  "left")
-									  .Set("visible", true)
-                                      );  
-    button2->SetEventHandler("click", (void*)this, &OnButton2Click);
-    CButtonPtr button3 = CreateButton(CAttributes()
-                                      .Set("name",    "Button3")
+									  .Set("visible", true));   
+	_initButton->SetEventHandler("click", (void*)this, &OnInitClick);
+
+	_consumeButton = CreateButton(CAttributes()
+									.Set("name",    "consumeButton")
+									.Set("caption", "Consume Coin")
+									.Set("x1", "5%")
+									.Set("y1", "15%")
+									.Set("alignW", "left")
+									.Set("enabled", false)
+									.Set("visible", true));
+	_consumeButton->SetEventHandler("click", (void*)this, &OnConsumeClick);
+
+    _nonConsButton = CreateButton(CAttributes()
+                                      .Set("name",    "nonConsButton")
                                       .Set("caption", "Purchase Hat")
                                       .Set("x1", "50%")
                                       .Set("y1", "5%")
                                       .Set("alignW",  "left")
-									  .Set("visible", true)
-                                      );  
-    button3->SetEventHandler("click", (void*)this, &OnButton3Click);
-    CButtonPtr button4 = CreateButton(CAttributes()
-                                      .Set("name",    "Button4")
+									  .Set("enabled", false)
+									  .Set("visible", true));  
+	_nonConsButton->SetEventHandler("click", (void*)this, &OnPurchaseNonConsumableClick);
+    
+	_consButton = CreateButton(CAttributes()
+                                      .Set("name",    "consButton")
                                       .Set("caption", "Purchase Coin")
                                       .Set("x1", "50%")
                                       .Set("y1", "15%")
                                       .Set("alignW",  "left")
-									  .Set("visible", true)
-                                      );  
-    button4->SetEventHandler("click", (void*)this, &OnButton4Click);
-	CButtonPtr button5 = CreateButton(CAttributes()
-                                      .Set("name",    "Button5")
+									  .Set("enabled", false)
+									  .Set("visible", true));      
+	_consButton->SetEventHandler("click", (void*)this, &OnPurchaseConsumableClick);
+	
+	_subsButton = CreateButton(CAttributes()
+                                      .Set("name",    "subsButton")
                                       .Set("caption", "Purchase Subscription")
                                       .Set("x1", "50%")
                                       .Set("y1", "25%")
                                       .Set("alignW",  "left")
-									  .Set("visible", true)
-                                      );  
-    button5->SetEventHandler("click", (void*)this, &OnButton5Click);
+									  .Set("enabled", false)
+									  .Set("visible", true)); 
+	_subsButton->SetEventHandler("click", (void*)this, &OnPurchaseSubscriptionClick);
 
 
 	// text fields
@@ -84,14 +86,6 @@ ExampleUI::ExampleUI()
                             .Set("height","10%")
 							.Set("alignW","left")
                             );      
-	animatingText = CreateLabel(CAttributes()
-                            .Set("caption","... Some Animating Text ...")
-                            .Set("x1", "5%")
-							.Set("x2", "95%")
-                            .Set("y1", "70%")
-                            .Set("height","10%")
-							.Set("alignW","left")
-                            ); 
 	consumableText = CreateLabel(CAttributes()
                             .Set("caption","")
                             .Set("x1", "5%")
@@ -113,17 +107,15 @@ ExampleUI::ExampleUI()
 	listBoxItems.AddString(CString("View Log"));
 	logText->SetAttribute("listBoxItems",listBoxItems);
 
-	view->AddChild(button1); buttons.push_back(button1);
-    view->AddChild(button2); buttons.push_back(button2);
-    view->AddChild(button3); buttons.push_back(button3);
-    view->AddChild(button4); buttons.push_back(button4);
-	view->AddChild(button5); buttons.push_back(button5);
+	view->AddChild(_initButton);
+    view->AddChild(_consumeButton);
+    view->AddChild(_nonConsButton);
+    view->AddChild(_consButton);
+    view->AddChild(_subsButton);
  
 	view->AddChild(statusText);
-	view->AddChild(animatingText);
 	view->AddChild(consumableText);
     view->AddChild(logText);
-	//view->AddChild(userNameText);
 
 	SetStatusText("");
     window->SetChild(view);   
@@ -133,11 +125,6 @@ ExampleUI::ExampleUI()
 void ExampleUI::SetStatusText(const string &msg)
 {
 	statusText->SetAttribute("caption",msg.c_str());
-}
-
-void ExampleUI::SetAnimatingText(const string &msg)
-{
-	animatingText->SetAttribute("caption",msg.c_str());
 }
 
 void ExampleUI::SetConsumableText(const string &msg)
@@ -151,18 +138,19 @@ void ExampleUI::Update()
 	app->Update();
 }
 
+void ExampleUI::EnableShopButtons(bool enable)
+{
+	_nonConsButton->SetAttribute("enabled", enable);
+	_consButton->SetAttribute("enabled",    enable);
+	_subsButton->SetAttribute("enabled",    enable);
+}
+
 void ExampleUI::Log(const string &msg)
 {
-	IwTrace(ANDROIDGOOGLEPLAYBILLING_VERBOSE, (msg.c_str()));
+	IwTrace(OPENIAB_DEMO, (msg.c_str()));
 	listBoxItems.AddString(CString(msg.c_str()));
 	logText->SetAttribute("listBoxItems",listBoxItems);
 	SetStatusText(msg);
-}
-
-void ExampleUI::EnableAllButtons(bool enable)
-{
-	for (size_t i=0;i<buttons.size();i++)
-		buttons[i]->SetAttribute("visible",enable);
 }
 
 // helper function

@@ -1,0 +1,17 @@
+#!/usr/bin/env mkb
+# Builder mkb file for the java portion of the openiab extension on android
+platform JAVA
+
+files
+{
+    (source/android)
+    org/onepf/openiab/marmalade/OpenIAB.java
+	org/onepf/openiab/marmalade/PurchaseActivity.java
+}
+
+librarypath "$MARMALADE_ROOT/s3e/deploy/plugins/android/android.jar"
+librarypath "$MARMALADE_ROOT/s3e/loader/android/s3e_release.jar"
+librarypath "lib/android/classes.jar"
+librarypath "lib/android/in-app-purchasing-2.0.0.jar"
+
+option output-name=lib/android/openiab.jar

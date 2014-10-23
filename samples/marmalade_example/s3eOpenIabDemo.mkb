@@ -3,7 +3,7 @@
 subprojects
 {
     iwnui
-    ../../marmalade_plugin/s3eOpenIab.mkf
+    ../../marmalade_plugin/openiab.mkf
 }
 
 files 

@@ -1,7 +1,7 @@
-# mkf file for building extension s3eOpenIab.
+# mkf file for building extension openiab.
 # NOTE: This file was originally written by the extension builder, but will not
 # be overwritten (unless --force is specified) and is intended to be modified.
-display_name "Extensions/s3eOpenIab"
+display_name "Extensions/openiab"
 
 includepath source/h
 includepath h
@@ -20,7 +20,7 @@ defines
 extension
 {
     ("$MARMALADE_ROOT/s3e/edk/builder")
-    "edk_build s3eOpenIab.s4e"
+    "edk_build openiab.s4e"
 }
 
 #include the extension builder subproject
@@ -33,7 +33,7 @@ if {{defined I3D_OS_IPHONE}}
         
         ["source"]
         (use_first_found, source/iphone, source/generic)
-        s3eOpenIab_platform.mm
+        openiab_platform.mm
         #Add any iphone-specific files here
     }
 }
@@ -45,7 +45,7 @@ if {{defined I3D_OS_WINDOWS}}
         
         ["source"]
         (use_first_found, source/windows, source/generic)
-        s3eOpenIab_platform.cpp
+        openiab_platform.cpp
         #Add any windows-specific files here
     }
 }
@@ -57,7 +57,7 @@ if {{defined S3E_ANDROID}}
         
         ["source"]
         (use_first_found, source/android, source/generic)
-        s3eOpenIab_platform.cpp
+        openiab_platform.cpp
         #Add any android-specific files here
     }
 }
@@ -69,7 +69,7 @@ if {{defined I3D_OS_OSX}}
         
         ["source"]
         (use_first_found, source/osx, source/generic)
-        s3eOpenIab_platform.mm
+        openiab_platform.mm
         #Add any osx-specific files here
     }
 }
@@ -80,7 +80,7 @@ if {{defined I3D_OS_LINUX and not defined S3E_ANDROID}}
     {
         ["source"]
         (use_first_found, source/linux, source/generic)
-        s3eOpenIab_platform.cpp
+        openiab_platform.cpp
         #Add any linux-specific files here
     }
 }
@@ -91,12 +91,57 @@ if {{defined I3D_OS_WP8}}
     {
         ["h"]
         (source/wp8)
-        s3eOpenIab_shim.h
+        openiab_shim.h
         ["source"]
         (use_first_found, source/wp8, source/generic)
-        s3eOpenIab_platform.cpp
-        s3eOpenIab_shim.cpp
+        openiab_platform.cpp
+        openiab_shim.cpp
         #Add any wp8-specific files here
+    }
+}
+
+if {{defined I3D_OS_WS8}}
+{
+    files
+    {
+        ["h"]
+        (source/ws8)
+        openiab_shim.h
+        ["source"]
+        (use_first_found, source/ws8, source/generic)
+        openiab_platform.cpp
+        openiab_shim.cpp
+        #Add any ws8-specific files here
+    }
+}
+
+if {{defined I3D_OS_WS81}}
+{
+    files
+    {
+        ["h"]
+        (source/ws81)
+        openiab_shim.h
+        ["source"]
+        (use_first_found, source/ws81, source/generic)
+        openiab_platform.cpp
+        openiab_shim.cpp
+        #Add any ws81-specific files here
+    }
+}
+
+if {{defined I3D_OS_WP81}}
+{
+    files
+    {
+        ["h"]
+        (source/wp81)
+        openiab_shim.h
+        ["source"]
+        (use_first_found, source/wp81, source/generic)
+        openiab_platform.cpp
+        openiab_shim.cpp
+        #Add any wp81-specific files here
     }
 }
 
@@ -106,19 +151,19 @@ files
     # Add any platform-independent files here
     # Note that if the file exists in the platform-specific directory
     # it will be taken from there instead of 'generic'
-    s3eOpenIab_register.cpp
-    s3eOpenIab.cpp
+    openiab_register.cpp
+    openiab.cpp
 
     ["h"]
     (source/h)
-    s3eOpenIab_internal.h
-    s3eOpenIab_autodefs.h
+    openiab_internal.h
+    openiab_autodefs.h
 
     ["docs"]
     (interface)
-    s3eOpenIab.defines.txt
+    openiab.defines.txt
 
     []
     (.)
-    s3eOpenIab.s4e
+    openiab.s4e
 }

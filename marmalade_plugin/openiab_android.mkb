@@ -1,0 +1,17 @@
+#!/usr/bin/env mkb
+# Builder mkb file for the openiab extension on android
+platform LINUX
+
+buildtype (SCONS, ARM)
+
+define S3E_ANDROID
+
+options
+{
+    dll
+    output-name="lib/android/libopeniab.so"
+    output-name-debug="lib/android/libopeniab_d.so"
+}
+define S3E_BUILD_EXT
+
+subproject openiab_build
