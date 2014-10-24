@@ -15,7 +15,7 @@ const char* coinSku = "sku_coin_inner";
 const char* subSku = "sku_subs_inner";
 
 // note this is the public license key provided by Google, not the one you sign this app with, it's in the developer console under Services & APIs
-const char *publicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApe2d3t+F+v1C5OUGPNW2+au8kyf2jAeK9QDg1MpFKgk9x+zh/ye/Y7JAv3gCVPb31CWTemywQLLRosm/DmqOFkPqMuexyKzm72X9cKbLupUI3iPXyASKh92R2+/p25iFRLKdWijh/ESkk0ii3PDBg3RIqjswlYiQ7g4SQ3YeVw+sOTyTIGik+yqz8bR7WEKbbFdsGMTUFwPgn273itimYMQ7vH6WtkCTzo5z1+Ab8DIygx6hCqKCvKOEDRBFB8/rJ7pl4jJsCsQHV5Q0x98fBN0Y9+jtKD0+M5Sm/u2+kNIukFF4khbBhdqisfL/8bbTsxE68tYh2GWWv10MqSv7JQIDAQAB";
+const char *publicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAixqRVmOe1akkTkeFS9ot8zERpdYVaziPRRKxMquWg7UUhZvi7YvV5UGVB7XUwP9LQVXndslUZmxj1XU1SeAERdHSfrAk7qcX6vYZJ023nxLXTe5lqLkPj9YQKlA39V5hp5rqi5oH8ZA6o2Eqrz9dISQXK+C84GkUvHggRsxfcdcO4sabWPcKW//io1eoiFANW3gKvXXpaovhWxtuJ/U4uB9t6WJLzUcnRP2eELCsbvucIYJKksIwmN3P22DDRV4ce43Fbld/eJGz8yXkEF6/wIyha6+tepZd6ix4B9RQVZYhEijAWA/yBSU5gMYrnFaC0jIZPmMUCnfglwwv1H+a4QIDAQAB";
 
 bool OnInitClick(void* data, CButton* button)
 {

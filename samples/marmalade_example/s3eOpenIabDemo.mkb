@@ -8,25 +8,25 @@ subprojects
 
 files 
 {
-	s3eOpenIabDemo.cpp
-	ExampleUI.cpp
+    s3eOpenIabDemo.cpp
+    ExampleUI.cpp
 }
 
 deployments
 {
-	name='openiab-marmalade-demo'
-	caption='OpenIAB Marmalade Demo'
-	version-major=0
-	version-minor=0
-	version-revision=1
-  	manufacturer='OnePF'
-  	provider='OnePF'
+    name='openiab-marmalade-demo'
+    caption='OpenIAB Marmalade Demo'
+    version-major=0
+    version-minor=0
+    version-revision=1
+    manufacturer='OnePF'
+    provider='OnePF'
 
-	["Android"]
-	android-manifest='AndroidManifest.xml'
-	android-pkgname='org.onepf.marmalade.demo'
+    ["Android"]
+    android-manifest='AndroidManifest.xml'
+    android-pkgname='org.onepf.openiab.marmalade.demo'
 
-  	["iOS"]
+    ["iOS"]
     iphone-appid='com.provectus.hogtest'
     #iphone-provisioning-profile="provision/profile/path"
 }
