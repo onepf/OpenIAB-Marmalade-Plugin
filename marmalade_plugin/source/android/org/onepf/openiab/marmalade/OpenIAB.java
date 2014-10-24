@@ -26,40 +26,40 @@ import java.util.Map;
 
 public class OpenIAB
 {
-	private static final String TAG = "OpenIAB-Marmalade";
+    private static final String TAG = "OpenIAB-Marmalade";
 
-	static final int RC_REQUEST = 10001; /**< (arbitrary) request code for the purchase flow */
-	
-	private static OpenIabHelper _helper = null;
-	private static BillingCallback _billingCallback;
-	private static Inventory _inventory = null;
-	
-	private static String _sku = null;
-	private static String _payload = null;
-	private static boolean _inapp = true;
-		
-	public static void startPurchase(Activity activity) 
-	{
-		if (_inapp)
-			_helper.launchPurchaseFlow(activity, _sku, RC_REQUEST, _billingCallback, _payload);
-		else
-			_helper.launchSubscriptionPurchaseFlow(activity, _sku, RC_REQUEST, _billingCallback, _payload);
-			
-		_sku = null;
-		_payload = null;
-	}
-	
-	public static void onActivityResult(int requestCode, int resultCode, Intent data) 
-	{
-		Log.i(TAG, "onActivityResult: " + requestCode + "," + resultCode);
-		_helper.handleActivityResult(requestCode, resultCode, data);
-	}
-	
+    static final int RC_REQUEST = 10001; /**< (arbitrary) request code for the purchase flow */
+    
+    private static OpenIabHelper _helper = null;
+    private static BillingCallback _billingCallback;
+    private static Inventory _inventory = null;
+    
+    private static String _sku = null;
+    private static String _payload = null;
+    private static boolean _inapp = true;
+        
+    public static void startPurchase(Activity activity) 
+    {
+        if (_inapp)
+            _helper.launchPurchaseFlow(activity, _sku, RC_REQUEST, _billingCallback, _payload);
+        else
+            _helper.launchSubscriptionPurchaseFlow(activity, _sku, RC_REQUEST, _billingCallback, _payload);
+            
+        _sku = null;
+        _payload = null;
+    }
+    
+    public static void onActivityResult(int requestCode, int resultCode, Intent data) 
+    {
+        Log.i(TAG, "onActivityResult: " + requestCode + "," + resultCode);
+        _helper.handleActivityResult(requestCode, resultCode, data);
+    }
+    
     public void mapSku(String sku, String storeName, String storeSku)
     {
         SkuManager.getInstance().mapSku(sku, storeName, storeSku);
     }
-	
+    
     public SkuDetails getSkuDetails(String sku)
     {
         if (!_inventory.hasDetails(sku)) {
@@ -67,73 +67,73 @@ public class OpenIAB
         }
         return _inventory.getSkuDetails(sku);
     }
-	
+    
     public void init(final OpenIabHelper.Options options, final String[] skus)
     {
-	    if (options == null) {
+        if (options == null) {
             Log.e(TAG, "No options sent.");
             return;
         }
-		
-		_billingCallback = new BillingCallback();
-		
-		_helper = new OpenIabHelper(LoaderAPI.getActivity(), options);
-		
-		// Start setup. This is asynchronous and the specified listener
-		// will be called once setup completes.
+        
+        _billingCallback = new BillingCallback();
+        
+        _helper = new OpenIabHelper(LoaderAPI.getActivity(), options);
+        
+        // Start setup. This is asynchronous and the specified listener
+        // will be called once setup completes.
         Log.i(TAG, "Starting setup.");
-		_helper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
+        _helper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
             public void onIabSetupFinished(IabResult result) {
-				Log.i(TAG, "Setup finished.");
-				if (result.isFailure()) {
-					// Oh noes, there was a problem.
-					Log.e(TAG, "Problem setting up in-app billing: " + result);
-					safe_native_INIT_CALLBACK(result);
-					return;
-				}
+                Log.i(TAG, "Setup finished.");
+                if (result.isFailure()) {
+                    // Oh noes, there was a problem.
+                    Log.e(TAG, "Problem setting up in-app billing: " + result);
+                    safe_native_INIT_CALLBACK(result);
+                    return;
+                }
 
-				List<String> skuList = Arrays.asList(skus);
-				
-				Log.i(TAG, "Querying inventory.");
-				// TODO: find alternative to this workaround
-				_helper.queryInventoryAsync(true, skuList, skuList, _billingCallback);
-			}
+                List<String> skuList = Arrays.asList(skus);
+                
+                Log.i(TAG, "Querying inventory.");
+                // TODO: find alternative to this workaround
+                _helper.queryInventoryAsync(true, skuList, skuList, _billingCallback);
+            }
         });
     }
-	
-	private void purchase(String sku, boolean inapp, String payload)
-	{
-		_sku = sku;
-		_payload = payload;
-		_inapp = inapp;
+    
+    private void purchase(String sku, boolean inapp, String payload)
+    {
+        _sku = sku;
+        _payload = payload;
+        _inapp = inapp;
         
-		Intent intent = new Intent(LoaderAPI.getActivity(), PurchaseActivity.class);
+        Intent intent = new Intent(LoaderAPI.getActivity(), PurchaseActivity.class);
         LoaderAPI.getActivity().startActivity(intent);
-	}
-	
+    }
+    
     public void purchaseProduct(String sku, String payload)
     {
         purchase(sku, true, payload);
     }
     
-	public void purchaseSubscription(String sku, String payload)
+    public void purchaseSubscription(String sku, String payload)
     {
         purchase(sku, false, payload);
     }
     
-	public void consume(String sku)
+    public void consume(String sku)
     {
-		if (!_inventory.hasPurchase(sku))
-		{
-			safe_native_CONSUME_CALLBACK(new IabResult(IabHelper.BILLING_RESPONSE_RESULT_ITEM_NOT_OWNED, "Product haven't been purchased: " + sku));
-			return;
-		}
+        if (!_inventory.hasPurchase(sku))
+        {
+            safe_native_CONSUME_CALLBACK(new IabResult(IabHelper.BILLING_RESPONSE_RESULT_ITEM_NOT_OWNED, "Product haven't been purchased: " + sku));
+            return;
+        }
 
-		Purchase purchase = _inventory.getPurchase(sku);
-		_helper.consumeAsync(purchase, _billingCallback);
+        Purchase purchase = _inventory.getPurchase(sku);
+        _helper.consumeAsync(purchase, _billingCallback);
     }
-	
-	/**
+    
+    /**
      * Callback class for when a purchase or consumption process is finished
      */
     public class BillingCallback implements
@@ -183,13 +183,13 @@ public class OpenIAB
     }
 
     public static native void native_INIT_CALLBACK(int status, String error);
-	
-	public static native void native_PURCHASE_CALLBACK(int status, String error, Purchase purchase);
+    
+    public static native void native_PURCHASE_CALLBACK(int status, String error, Purchase purchase);
 
     public static native void native_CONSUME_CALLBACK(int status, String error);
-	
+    
 
-	private static void safe_native_INIT_CALLBACK(IabResult res) {
+    private static void safe_native_INIT_CALLBACK(IabResult res) {
         try {
             native_INIT_CALLBACK(res.getResponse(), res.getMessage());
         } catch (UnsatisfiedLinkError e) {
@@ -204,8 +204,8 @@ public class OpenIAB
             Log.v(TAG, "No native handlers installed for safe_native_PURCHASE_CALLBACK, we received " + res.getResponse() + " " + res.getMessage());
         }
     }
-	
-	private static void safe_native_CONSUME_CALLBACK(IabResult res) {
+    
+    private static void safe_native_CONSUME_CALLBACK(IabResult res) {
         try {
             native_CONSUME_CALLBACK(res.getResponse(), res.getMessage());
         } catch (UnsatisfiedLinkError e) {
