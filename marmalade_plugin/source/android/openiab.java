@@ -43,4 +43,8 @@ class openiab
     {
         
     }
+    public FIXME getSkuListDetails(FIXME skuList, int skuListCount)
+    {
+        
+    }
 }

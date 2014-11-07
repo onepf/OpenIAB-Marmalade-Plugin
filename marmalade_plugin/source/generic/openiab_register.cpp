@@ -30,6 +30,12 @@ static void mapSku_wrap(const char* sku, const char* storeName, const char* stor
     s3eEdkThreadRunOnOS((s3eEdkThreadFunc)mapSku, 3, sku, storeName, storeSku);
 }
 
+static OpenIabSkuDetails* getSkuDetails_wrap(const char* sku)
+{
+    IwTrace(OPENIAB_VERBOSE, ("calling openiab func on main thread: getSkuDetails"));
+    return (OpenIabSkuDetails*)(intptr_t)s3eEdkThreadRunOnOS((s3eEdkThreadFunc)getSkuDetails, 1, sku);
+}
+
 static void init_wrap(OpenIabOptions* options, const char** skuList, int skuListCount)
 {
     IwTrace(OPENIAB_VERBOSE, ("calling openiab func on main thread: init"));
@@ -54,11 +60,19 @@ static void consume_wrap(const char* sku)
     s3eEdkThreadRunOnOS((s3eEdkThreadFunc)consume, 1, sku);
 }
 
+static OpenIabSkuDetails** getSkuListDetails_wrap(const char** skuList, int skuListCount)
+{
+    IwTrace(OPENIAB_VERBOSE, ("calling openiab func on main thread: getSkuListDetails"));
+    return (OpenIabSkuDetails**)(intptr_t)s3eEdkThreadRunOnOS((s3eEdkThreadFunc)getSkuListDetails, 2, skuList, skuListCount);
+}
+
 #define mapSku mapSku_wrap
+#define getSkuDetails getSkuDetails_wrap
 #define init init_wrap
 #define purchaseProduct purchaseProduct_wrap
 #define purchaseSubscription purchaseSubscription_wrap
 #define consume consume_wrap
+#define getSkuListDetails getSkuListDetails_wrap
 
 #endif
 
@@ -75,7 +89,7 @@ s3eResult openiabUnRegister(openiabCallback cbid, s3eCallback fn)
 void openiabRegisterExt()
 {
     /* fill in the function pointer struct for this extension */
-    void* funcPtrs[9];
+    void* funcPtrs[10];
     funcPtrs[0] = (void*)openiabRegister;
     funcPtrs[1] = (void*)openiabUnRegister;
     funcPtrs[2] = (void*)mapSku;
@@ -85,11 +99,12 @@ void openiabRegisterExt()
     funcPtrs[6] = (void*)purchaseSubscription;
     funcPtrs[7] = (void*)consume;
     funcPtrs[8] = (void*)openiabStoreNames;
+    funcPtrs[9] = (void*)getSkuListDetails;
 
     /*
      * Flags that specify the extension's use of locking and stackswitching
      */
-    int flags[9] = { 0 };
+    int flags[10] = { 0 };
 
     /*
      * Register the extension

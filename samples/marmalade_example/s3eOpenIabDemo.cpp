@@ -106,6 +106,16 @@ int32 InitCallback(void *systemData, void *userData)
 			ui->Log("Init succeded");
 			ui->EnableShopButtons(true);
             ui->initButton()->SetAttribute("enabled", false);
+
+            const char** skuList = new const char*[3];
+            skuList[0] = hatSku;
+            skuList[1] = coinSku;
+            skuList[2] = subSku;
+            OpenIabSkuDetails** sdList = getSkuListDetails(skuList, 3);
+            for (int i = 0; i < 3; ++i)
+            {
+                ui->Log(string_format("SkuDetails: %s", sdList[i]->productId));
+            }
 		}
 	}
 	return true;

@@ -16,6 +16,7 @@
 static jobject g_Obj;
 static jmethodID g_mapSku;
 static jmethodID g_getSkuDetails;
+static jmethodID g_getSkuListDetails;
 static jmethodID g_init;
 static jmethodID g_purchaseProduct;
 static jmethodID g_purchaseSubscription;
@@ -196,7 +197,7 @@ s3eResult openiabInit_platform()
     g_getSkuDetails = env->GetMethodID(cls, "getSkuDetails", "(Ljava/lang/String;)Lorg/onepf/oms/appstore/googleUtils/SkuDetails;");
     if (!g_getSkuDetails)
         goto fail;
-
+	
     g_init = env->GetMethodID(cls, "init", "(Lorg/onepf/oms/OpenIabHelper$Options;[Ljava/lang/String;)V");
     if (!g_init)
         goto fail;
@@ -274,6 +275,18 @@ OpenIabSkuDetails* getSkuDetails_platform(const char* sku)
     OpenIabSkuDetails* sd = new OpenIabSkuDetails;
     ConvertSkuDetails(env, data, sd);
     return sd;
+}
+
+OpenIabSkuDetails** getSkuListDetails_platform(const char** skuList, int skuListCount)
+{
+    JNIEnv* env = s3eEdkJNIGetEnv();
+    OpenIabSkuDetails** sdList = new OpenIabSkuDetails*[skuListCount];
+	
+	for (int i = 0; i < skuListCount; ++i)
+	{
+		sdList[i] = getSkuDetails_platform(skuList[i]);
+	}
+    return sdList;
 }
 
 void init_platform(OpenIabOptions* options, const char** skuList, int skuListCount)
@@ -379,6 +392,10 @@ void init_platform(OpenIabOptions* options, const char** skuList, int skuListCou
         if (fid == 0) goto fail;
         env->SetObjectField(options_j, fid, stringArray);
     }
+	
+	fid = env->GetFieldID(optionsClass, "samsungCertificationRequestCode", "I");
+    if (fid == 0) goto fail;
+		env->SetIntField(options_j, fid, (jint) options->samsungCertificationRequestCode);
 
     // Initialize at last
     env->CallVoidMethod(g_Obj, g_init, options_j, skuList_java);

@@ -34,6 +34,11 @@ OpenIabSkuDetails* getSkuDetails(const char* sku)
 	return getSkuDetails_platform(sku);
 }
 
+OpenIabSkuDetails** getSkuListDetails(const char** skuList, int skuListCount)
+{
+	return getSkuListDetails_platform(skuList, skuListCount);
+}
+
 void init(OpenIabOptions* options, const char** skuList, int skuListCount)
 {
 	init_platform(options, skuList, skuListCount);

@@ -122,6 +122,8 @@ struct OpenIabOptions
      */
     const char** prefferedStoreNames;
     int numPrefferedStoreNames;
+	
+	int samsungCertificationRequestCode;
 };
 
 struct OpenIabPurchase
@@ -228,7 +230,7 @@ functions:
 
 void mapSku(const char* sku, const char* storeName, const char* storeSku) run_on_os_thread
 
-OpenIabSkuDetails* getSkuDetails(const char* sku) NULL
+OpenIabSkuDetails* getSkuDetails(const char* sku) NULL run_on_os_thread
 
 void init(OpenIabOptions* options, const char** skuList, int skuListCount) run_on_os_thread
 
@@ -239,3 +241,5 @@ void purchaseSubscription(const char* sku, const char* payload) run_on_os_thread
 void consume(const char* sku) run_on_os_thread
 
 OpenIabStoreNames* openiabStoreNames() NULL
+
+OpenIabSkuDetails** getSkuListDetails(const char** skuList, int skuListCount) NULL run_on_os_thread

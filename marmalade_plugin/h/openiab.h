@@ -137,6 +137,8 @@ struct OpenIabOptions
      */
     const char** prefferedStoreNames;
     int numPrefferedStoreNames;
+	
+	int samsungCertificationRequestCode;
 };
 
 struct OpenIabPurchase
@@ -291,6 +293,8 @@ void purchaseSubscription(const char* sku, const char* payload);
 void consume(const char* sku);
 
 OpenIabStoreNames* openiabStoreNames();
+
+OpenIabSkuDetails** getSkuListDetails(const char** skuList, int skuListCount);
 
 S3E_END_C_DECL
 

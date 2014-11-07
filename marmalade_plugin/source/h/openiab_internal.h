@@ -46,6 +46,8 @@ void mapSku_platform(const char* sku, const char* storeName, const char* storeSk
 
 OpenIabSkuDetails* getSkuDetails_platform(const char* sku);
 
+OpenIabSkuDetails** getSkuListDetails_platform(const char** skuList, int skuListCount);
+
 void init_platform(OpenIabOptions* options, const char** skuList, int skuListCount);
 
 void purchaseProduct_platform(const char* sku, const char* payload);
