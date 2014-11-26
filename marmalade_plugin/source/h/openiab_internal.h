@@ -48,6 +48,8 @@ OpenIabSkuDetails* getSkuDetails_platform(const char* sku);
 
 OpenIabSkuDetails** getSkuListDetails_platform(const char** skuList, int skuListCount);
 
+OpenIabPurchase** getPurchases_platform();
+
 void init_platform(OpenIabOptions* options, const char** skuList, int skuListCount);
 
 void purchaseProduct_platform(const char* sku, const char* payload);

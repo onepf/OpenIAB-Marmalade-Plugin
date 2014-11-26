@@ -16,7 +16,7 @@
 static jobject g_Obj;
 static jmethodID g_mapSku;
 static jmethodID g_getSkuDetails;
-static jmethodID g_getSkuListDetails;
+static jmethodID g_getPurchases;
 static jmethodID g_init;
 static jmethodID g_purchaseProduct;
 static jmethodID g_purchaseSubscription;
@@ -197,6 +197,10 @@ s3eResult openiabInit_platform()
     g_getSkuDetails = env->GetMethodID(cls, "getSkuDetails", "(Ljava/lang/String;)Lorg/onepf/oms/appstore/googleUtils/SkuDetails;");
     if (!g_getSkuDetails)
         goto fail;
+        
+    g_getPurchases = env->GetMethodID(cls, "getPurchases", "()Ljava/util/List;");
+    if (!g_getPurchases)
+        goto fail;
 	
     g_init = env->GetMethodID(cls, "init", "(Lorg/onepf/oms/OpenIabHelper$Options;[Ljava/lang/String;)V");
     if (!g_init)
@@ -287,6 +291,29 @@ OpenIabSkuDetails** getSkuListDetails_platform(const char** skuList, int skuList
 		sdList[i] = getSkuDetails_platform(skuList[i]);
 	}
     return sdList;
+}
+
+OpenIabPurchase** getPurchases_platform()
+{
+    JNIEnv* env = s3eEdkJNIGetEnv();
+
+    jobject j_purchaseList = env->CallObjectMethod(g_Obj, g_getPurchases);
+          
+    jclass list_cls = env->FindClass("java/util/List");
+    jmethodID get_mid = env->GetMethodID(list_cls, "get", "(I)Ljava/lang/Object;");
+    jmethodID size_mid = env->GetMethodID(list_cls, "size", "()I");
+    int length = (int) env->CallIntMethod(j_purchaseList, size_mid);
+
+    OpenIabPurchase** purchaseList = new OpenIabPurchase*[length];
+    
+    for (int i = 0; i < length; ++i)
+    {
+        OpenIabPurchase* p = new OpenIabPurchase;       
+        jobject j_purchase = env->CallObjectMethod(j_purchaseList, get_mid, i);
+        ConvertPurchase(env, j_purchase, p);
+        purchaseList[i] = p;
+    }
+    return purchaseList;
 }
 
 void init_platform(OpenIabOptions* options, const char** skuList, int skuListCount)

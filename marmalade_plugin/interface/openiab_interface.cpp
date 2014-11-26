@@ -32,6 +32,7 @@ typedef       void(*purchaseSubscription_t)(const char* sku, const char* payload
 typedef       void(*consume_t)(const char* sku);
 typedef OpenIabStoreNames*(*openiabStoreNames_t)();
 typedef OpenIabSkuDetails**(*getSkuListDetails_t)(const char** skuList, int skuListCount);
+typedef OpenIabPurchase**(*getPurchases_t)();
 
 /**
  * struct that gets filled in by openiabRegister
@@ -48,6 +49,7 @@ typedef struct openiabFuncs
     consume_t m_consume;
     openiabStoreNames_t m_openiabStoreNames;
     getSkuListDetails_t m_getSkuListDetails;
+    getPurchases_t m_getPurchases;
 } openiabFuncs;
 
 static openiabFuncs g_Ext;
@@ -285,6 +287,26 @@ OpenIabSkuDetails** getSkuListDetails(const char** skuList, int skuListCount)
 #endif
 
     OpenIabSkuDetails** ret = g_Ext.m_getSkuListDetails(skuList, skuListCount);
+
+#ifdef LOADER_CALL_LOCK
+    s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
+#endif
+
+    return ret;
+}
+
+OpenIabPurchase** getPurchases()
+{
+    IwTrace(OPENIAB_VERBOSE, ("calling openiab[10] func: getPurchases"));
+
+    if (!_extLoad())
+        return NULL;
+
+#ifdef LOADER_CALL_LOCK
+    s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
+#endif
+
+    OpenIabPurchase** ret = g_Ext.m_getPurchases();
 
 #ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
