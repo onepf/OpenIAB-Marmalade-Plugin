@@ -297,8 +297,7 @@ OpenIabPurchase** getPurchases_platform()
 {
     JNIEnv* env = s3eEdkJNIGetEnv();
 
-    jobject j_purchaseList = env->CallObjectMethod(g_Obj, g_getPurchases);
-          
+    jobject j_purchaseList = env->CallObjectMethod(g_Obj, g_getPurchases);      
     jclass list_cls = env->FindClass("java/util/List");
     jmethodID get_mid = env->GetMethodID(list_cls, "get", "(I)Ljava/lang/Object;");
     jmethodID size_mid = env->GetMethodID(list_cls, "size", "()I");
@@ -314,6 +313,16 @@ OpenIabPurchase** getPurchases_platform()
         purchaseList[i] = p;
     }
     return purchaseList;
+}
+
+int getPurchasesCount_platform()
+{
+    JNIEnv* env = s3eEdkJNIGetEnv();
+    
+    jobject j_purchaseList = env->CallObjectMethod(g_Obj, g_getPurchases);
+    jclass list_cls = env->FindClass("java/util/List");
+    jmethodID size_mid = env->GetMethodID(list_cls, "size", "()I");
+    return (int) env->CallIntMethod(j_purchaseList, size_mid);
 }
 
 void init_platform(OpenIabOptions* options, const char** skuList, int skuListCount)

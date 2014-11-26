@@ -44,6 +44,11 @@ OpenIabPurchase** getPurchases()
     return getPurchases_platform();
 }
 
+int getPurchasesCount()
+{
+    return getPurchasesCount_platform();
+}
+
 void init(OpenIabOptions* options, const char** skuList, int skuListCount)
 {
 	init_platform(options, skuList, skuListCount);

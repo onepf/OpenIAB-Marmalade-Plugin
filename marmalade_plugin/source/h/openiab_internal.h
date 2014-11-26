@@ -60,4 +60,6 @@ void consume_platform(const char* sku);
 
 OpenIabStoreNames* openiabStoreNames_platform();
 
+int getPurchasesCount_platform();
+
 #endif /* !OPENIAB_INTERNAL_H */

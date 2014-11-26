@@ -248,3 +248,5 @@ OpenIabStoreNames* openiabStoreNames() NULL
 OpenIabSkuDetails** getSkuListDetails(const char** skuList, int skuListCount) NULL run_on_os_thread
 
 OpenIabPurchase** getPurchases() NULL run_on_os_thread
+
+int getPurchasesCount() 0 run_on_os_thread

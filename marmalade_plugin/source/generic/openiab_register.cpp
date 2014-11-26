@@ -72,6 +72,12 @@ static OpenIabPurchase** getPurchases_wrap()
     return (OpenIabPurchase**)(intptr_t)s3eEdkThreadRunOnOS((s3eEdkThreadFunc)getPurchases, 0);
 }
 
+static int getPurchasesCount_wrap()
+{
+    IwTrace(OPENIAB_VERBOSE, ("calling openiab func on main thread: getPurchasesCount"));
+    return (int)(intptr_t)s3eEdkThreadRunOnOS((s3eEdkThreadFunc)getPurchasesCount, 0);
+}
+
 #define mapSku mapSku_wrap
 #define getSkuDetails getSkuDetails_wrap
 #define init init_wrap
@@ -80,6 +86,7 @@ static OpenIabPurchase** getPurchases_wrap()
 #define consume consume_wrap
 #define getSkuListDetails getSkuListDetails_wrap
 #define getPurchases getPurchases_wrap
+#define getPurchasesCount getPurchasesCount_wrap
 
 #endif
 
@@ -96,7 +103,7 @@ s3eResult openiabUnRegister(openiabCallback cbid, s3eCallback fn)
 void openiabRegisterExt()
 {
     /* fill in the function pointer struct for this extension */
-    void* funcPtrs[11];
+    void* funcPtrs[12];
     funcPtrs[0] = (void*)openiabRegister;
     funcPtrs[1] = (void*)openiabUnRegister;
     funcPtrs[2] = (void*)mapSku;
@@ -108,11 +115,12 @@ void openiabRegisterExt()
     funcPtrs[8] = (void*)openiabStoreNames;
     funcPtrs[9] = (void*)getSkuListDetails;
     funcPtrs[10] = (void*)getPurchases;
+    funcPtrs[11] = (void*)getPurchasesCount;
 
     /*
      * Flags that specify the extension's use of locking and stackswitching
      */
-    int flags[11] = { 0 };
+    int flags[12] = { 0 };
 
     /*
      * Register the extension

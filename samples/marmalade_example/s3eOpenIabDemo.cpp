@@ -116,6 +116,13 @@ int32 InitCallback(void *systemData, void *userData)
             {
                 ui->Log(string_format("SkuDetails: %s", sdList[i]->productId));
             }
+
+			int count = getPurchasesCount();
+			OpenIabPurchase** purchaseList = getPurchases();
+			for (int i = 0; i < count; ++i)
+			{
+				ui->Log(string_format("Purchase: %s", purchaseList[i]->productId));
+			}
 		}
 	}
 	return true;

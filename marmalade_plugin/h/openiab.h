@@ -301,6 +301,8 @@ OpenIabSkuDetails** getSkuListDetails(const char** skuList, int skuListCount);
 
 OpenIabPurchase** getPurchases();
 
+int getPurchasesCount();
+
 S3E_END_C_DECL
 
 #endif /* !S3E_EXT_OPENIAB_H */
