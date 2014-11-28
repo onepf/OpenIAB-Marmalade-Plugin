@@ -24,9 +24,13 @@ deployments
 
     ["Android"]
     android-manifest='AndroidManifest.xml'
-    android-pkgname='org.onepf.openiab.marmalade.demo'
+    android-pkgname='com.OnePF.openiab-marmalade-demo'
+	android-keystore='openiab.keystore'
+	android-aliasname='openiab'
+	android-keypass='openiab'
+	android-storepass='openiab'
 
-    ["iOS"]
-    iphone-appid='com.provectus.hogtest'
+    #["iOS"]
+    #iphone-appid='com.provectus.hogtest'
     #iphone-provisioning-profile="provision/profile/path"
 }

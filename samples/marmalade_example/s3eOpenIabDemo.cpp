@@ -32,13 +32,15 @@ bool OnInitClick(void* data, CButton* button)
 	options->storeKeys[0] = publicKey;
 
 	options->verifyMode = VERIFY_SKIP;
-	options->checkInventory = false;
+    options->storeSearchStrategy = SEARCH_STRATEGY_INSTALLER_THEN_BEST_FIT;
+	
+    options->checkInventory = false;
 	options->checkInventoryTimeoutMs = 20000;
 	options->discoveryTimeoutMs = 10000;
 
-	options->numPrefferedStoreNames = 1;
-	options->prefferedStoreNames = new const char*[options->numPrefferedStoreNames];
-	options->prefferedStoreNames[0] = openiabStoreNames()->GOOGLE;
+	options->numPreferredStoreNames = 1;
+	options->preferredStoreNames = new const char*[options->numPreferredStoreNames];
+	options->preferredStoreNames[0] = openiabStoreNames()->GOOGLE;
 
 	const char** skuList = new const char*[3];
 	skuList[0] = hatSku;
@@ -116,6 +118,13 @@ int32 InitCallback(void *systemData, void *userData)
             {
                 ui->Log(string_format("SkuDetails: %s", sdList[i]->productId));
             }
+
+			int count = getPurchasesCount();
+			OpenIabPurchase** purchaseList = getPurchases();
+			for (int i = 0; i < count; ++i)
+			{
+				ui->Log(string_format("Purchase: %s", purchaseList[i]->productId));
+			}
 		}
 	}
 	return true;

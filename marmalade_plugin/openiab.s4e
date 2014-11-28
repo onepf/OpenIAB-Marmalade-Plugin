@@ -92,8 +92,38 @@ enum OpenIabVerifyMode
     VERIFY_ONLY_KNOWN = 2
 };
 
+enum OpenIabStoreSearchStrategy
+{
+	/**
+	 * Look for package installer and try to use it as a billing provider.
+	 */
+	SEARCH_STRATEGY_INSTALLER = 0,
+
+	/**
+	 * Look among available billing providers and select one that fits best.
+	 */
+	SEARCH_STRATEGY_BEST_FIT = 1,
+
+	/**
+	 * If package installer is not available or is not suited for billing, look for the best fit store.
+	 */
+	SEARCH_STRATEGY_INSTALLER_THEN_BEST_FIT = 2
+};
+
 struct OpenIabOptions
 {
+	OpenIabOptions() : 
+		discoveryTimeoutMs(-1),
+		checkInventory(false),
+		checkInventoryTimeoutMs(-1),
+		verifyMode((OpenIabVerifyMode) 0),
+		storeSearchStrategy((OpenIabStoreSearchStrategy) 0),
+		numStores(0),
+		numPreferredStoreNames(0),
+		numAvailableStoreNames(0),
+		samsungCertificationRequestCode(-1)
+	{}
+
     /** Wait specified amount of ms to find all OpenStores on device. 5000 by default */
     int discoveryTimeoutMs;
     
@@ -109,6 +139,8 @@ struct OpenIabOptions
     int checkInventoryTimeoutMs;
 
     OpenIabVerifyMode verifyMode;
+	
+	OpenIabStoreSearchStrategy storeSearchStrategy;
     
     /** Store 'public key' keys */
     const char** storeNames;
@@ -120,13 +152,13 @@ struct OpenIabOptions
      * Used as priority list if store that installed app is not found and there are 
      * multiple stores installed on device that supports billing.
      */
-    const char** prefferedStoreNames;
-    int numPrefferedStoreNames;
-	
-	int samsungCertificationRequestCode;
-    
+    const char** preferredStoreNames;
+    int numPreferredStoreNames;
+	   
     const char** availableStoreNames;
     int numAvailableStoreNames;
+	
+	int samsungCertificationRequestCode;
 };
 
 struct OpenIabPurchase
@@ -246,3 +278,7 @@ void consume(const char* sku) run_on_os_thread
 OpenIabStoreNames* openiabStoreNames() NULL
 
 OpenIabSkuDetails** getSkuListDetails(const char** skuList, int skuListCount) NULL run_on_os_thread
+
+OpenIabPurchase** getPurchases() NULL run_on_os_thread
+
+int getPurchasesCount() 0 run_on_os_thread

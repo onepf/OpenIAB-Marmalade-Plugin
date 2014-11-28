@@ -39,6 +39,16 @@ OpenIabSkuDetails** getSkuListDetails(const char** skuList, int skuListCount)
 	return getSkuListDetails_platform(skuList, skuListCount);
 }
 
+OpenIabPurchase** getPurchases()
+{
+    return getPurchases_platform();
+}
+
+int getPurchasesCount()
+{
+    return getPurchasesCount_platform();
+}
+
 void init(OpenIabOptions* options, const char** skuList, int skuListCount)
 {
 	init_platform(options, skuList, skuListCount);

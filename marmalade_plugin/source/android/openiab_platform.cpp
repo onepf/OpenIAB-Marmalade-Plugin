@@ -16,7 +16,7 @@
 static jobject g_Obj;
 static jmethodID g_mapSku;
 static jmethodID g_getSkuDetails;
-static jmethodID g_getSkuListDetails;
+static jmethodID g_getPurchases;
 static jmethodID g_init;
 static jmethodID g_purchaseProduct;
 static jmethodID g_purchaseSubscription;
@@ -197,6 +197,10 @@ s3eResult openiabInit_platform()
     g_getSkuDetails = env->GetMethodID(cls, "getSkuDetails", "(Ljava/lang/String;)Lorg/onepf/oms/appstore/googleUtils/SkuDetails;");
     if (!g_getSkuDetails)
         goto fail;
+        
+    g_getPurchases = env->GetMethodID(cls, "getPurchases", "()Ljava/util/List;");
+    if (!g_getPurchases)
+        goto fail;
 	
     g_init = env->GetMethodID(cls, "init", "(Lorg/onepf/oms/OpenIabHelper$Options;[Ljava/lang/String;)V");
     if (!g_init)
@@ -289,132 +293,125 @@ OpenIabSkuDetails** getSkuListDetails_platform(const char** skuList, int skuList
     return sdList;
 }
 
+OpenIabPurchase** getPurchases_platform()
+{
+    JNIEnv* env = s3eEdkJNIGetEnv();
+
+    jobject j_purchaseList = env->CallObjectMethod(g_Obj, g_getPurchases);      
+    jclass list_cls = env->FindClass("java/util/List");
+    jmethodID get_mid = env->GetMethodID(list_cls, "get", "(I)Ljava/lang/Object;");
+    jmethodID size_mid = env->GetMethodID(list_cls, "size", "()I");
+    int length = (int) env->CallIntMethod(j_purchaseList, size_mid);
+
+    OpenIabPurchase** purchaseList = new OpenIabPurchase*[length];
+    
+    for (int i = 0; i < length; ++i)
+    {
+        OpenIabPurchase* p = new OpenIabPurchase;       
+        jobject j_purchase = env->CallObjectMethod(j_purchaseList, get_mid, i);
+        ConvertPurchase(env, j_purchase, p);
+        purchaseList[i] = p;
+    }
+    return purchaseList;
+}
+
+int getPurchasesCount_platform()
+{
+    JNIEnv* env = s3eEdkJNIGetEnv();
+    
+    jobject j_purchaseList = env->CallObjectMethod(g_Obj, g_getPurchases);
+    jclass list_cls = env->FindClass("java/util/List");
+    jmethodID size_mid = env->GetMethodID(list_cls, "size", "()I");
+    return (int) env->CallIntMethod(j_purchaseList, size_mid);
+}
+
 void init_platform(OpenIabOptions* options, const char** skuList, int skuListCount)
 {
-    s3eAndroidJNIFrame env(s3eEdkJNIGetEnv(), skuListCount); // this local frame is needed to make sure there is enough stack to hold the strings
-    
-    jfieldID fid = NULL;
-    jmethodID mid = NULL;
-    
-    // Options
-    jclass optionsClass = NULL;
-    jobject options_j = NULL;
-    jmethodID optionsConstructor = NULL;
-    
-    // storeKeys HashMap
-    jclass mapClass;
-    jsize mapLen;
-    jmethodID mapClassConstructor;
-    jmethodID hashMapPut;
-    jobject hashMap = NULL;
-    
-    jobjectArray skuList_java = MakeStringArray(skuList, skuListCount);
-    
-    // Get Options class
-    optionsClass = s3eEdkAndroidFindClass("org/onepf/oms/OpenIabHelper$Options");
-    if (!optionsClass)
-        goto fail;
-        
-    // Get Options class constructor
-    optionsConstructor = env->GetMethodID(optionsClass, "<init>", "()V");
-    if (!optionsConstructor)
-        goto fail;
-    
-    // Construct Options instance
-    options_j = env->NewObject(optionsClass, optionsConstructor);
-    if (!options_j)
-        goto fail;
-
-    // Options.discoveryTimeoutMs
-    if (options->discoveryTimeoutMs > 0)
+    s3eAndroidJNIFrame env(s3eEdkJNIGetEnv(), skuListCount);
+	
+	jclass builderClass = env->FindClass("org/onepf/oms/OpenIabHelper$Options$Builder");
+	
+	jmethodID builderConstructor = env->GetMethodID(builderClass, "<init>", "()V");
+	jobject builder = env->NewObject(builderClass, builderConstructor);
+	
+	// Options.discoveryTimeoutMs
+    if (options->discoveryTimeoutMs > -1)
     {
-        fid = env->GetFieldID(optionsClass, "discoveryTimeoutMs", "I");
-        if (fid == 0) goto fail;
-        env->SetIntField(options_j, fid, (jint) options->discoveryTimeoutMs);
-    }
-
-    // Options.checkInventory
-    if (!options->checkInventory)
+		jmethodID mid = env->GetMethodID(builderClass, "setDiscoveryTimeout", "(I)Lorg/onepf/oms/OpenIabHelper$Options$Builder;");
+		env->CallObjectMethod(builder, mid, options->discoveryTimeoutMs);
+	}
+	
+	// Options.checkInventory
+	jmethodID mid_checkInventory = env->GetMethodID(builderClass, "setCheckInventory", "(Z)Lorg/onepf/oms/OpenIabHelper$Options$Builder;");
+	env->CallObjectMethod(builder, mid_checkInventory, options->checkInventory);
+	
+	// Options.checkInventoryTimeoutMs
+    if (options->checkInventoryTimeoutMs > -1)
     {
-        fid = env->GetFieldID(optionsClass, "checkInventory", "Z");
-        if (fid == 0) goto fail;
-        env->SetBooleanField(options_j, fid, options->checkInventory);
-    }
-
-    // Options.checkInventoryTimeoutMs
-    if (options->checkInventoryTimeoutMs > 0)
-    {
-        fid = env->GetFieldID(optionsClass, "checkInventoryTimeoutMs", "I");
-        if (fid == 0) goto fail;
-        env->SetIntField(options_j, fid, (jint) options->checkInventoryTimeoutMs);
-    }
-
-    // Options.verifyMode
-    if (options->verifyMode > 0)
-    {
-        fid = env->GetFieldID(optionsClass, "verifyMode", "I");
-        if (fid == 0) goto fail;
-        env->SetIntField(options_j, fid, (jint) options->verifyMode);
-    }
-
-    // Options.storeKeys
-    if (options->numStores > 0)
-    {
-        mapClass = env->FindClass("java/util/HashMap");
-        if (mapClass == NULL) goto fail;
-        mapLen = options->numStores;
-        mapClassConstructor = env->GetMethodID(mapClass, "<init>", "(I)V");
-        hashMap = env->NewObject(mapClass, mapClassConstructor, mapLen);
-        hashMapPut = env->GetMethodID(mapClass, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
-
-        for (int i = 0; i < mapLen; ++i)
-        {
-            jstring key = env->NewStringUTF(options->storeNames[i]);
-            jstring value = env->NewStringUTF(options->storeKeys[i]);
-            
-            env->CallObjectMethod(hashMap, hashMapPut, key, value);
-            
-            env->DeleteLocalRef(key);
-            env->DeleteLocalRef(value);
-        }
-        
-        fid = env->GetFieldID(optionsClass, "storeKeys", "Ljava/util/Map;");
-        if (fid == 0)
-            goto fail;
-        env->SetObjectField(options_j, fid, hashMap);
-    }
-    
-    // Options.prefferedStoreNames
-    if (options->numPrefferedStoreNames > 0)
-    {
-        jobjectArray stringArray = MakeStringArray(options->prefferedStoreNames, options->numPrefferedStoreNames);
-        fid = env->GetFieldID(optionsClass, "prefferedStoreNames", "[Ljava/lang/String;");
-        if (fid == 0) goto fail;
-        env->SetObjectField(options_j, fid, stringArray);
+		jmethodID mid = env->GetMethodID(builderClass, "setCheckInventoryTimeout", "(I)Lorg/onepf/oms/OpenIabHelper$Options$Builder;");
+		env->CallObjectMethod(builder, mid, options->checkInventoryTimeoutMs);
     }
 	
-	fid = env->GetFieldID(optionsClass, "samsungCertificationRequestCode", "I");
-    if (fid == 0) goto fail;
-		env->SetIntField(options_j, fid, (jint) options->samsungCertificationRequestCode);
-
-    // Initialize at last
-    env->CallVoidMethod(g_Obj, g_init, options_j, skuList_java);
-    
-    // Clear references
-    if (hashMap != NULL)
-        env->DeleteLocalRef(hashMap);
-    env->DeleteLocalRef(options_j);
-    
-    return;
-    
-fail:
-    jthrowable exc = env->ExceptionOccurred();
-    if (exc)
+	// Options.verifyMode
+    jmethodID mid_verifyMode = env->GetMethodID(builderClass, "setVerifyMode", "(I)Lorg/onepf/oms/OpenIabHelper$Options$Builder;");
+	env->CallObjectMethod(builder, mid_verifyMode, (jint) options->verifyMode);
+	
+	// Options.storeSearchStrategy
+	jmethodID mid_storeSearchStrategy = env->GetMethodID(builderClass, "setStoreSearchStrategy", "(I)Lorg/onepf/oms/OpenIabHelper$Options$Builder;");
+	env->CallObjectMethod(builder, mid_storeSearchStrategy, (jint) options->storeSearchStrategy);
+		
+	// Options.storeKeys
+    if (options->numStores > 0)
     {
-        env->ExceptionDescribe();
-        env->ExceptionClear();
-        IwTrace(s3eOpenIab, ("openiab init: One or more java methods could not be found"));
+		jmethodID mid = env->GetMethodID(builderClass, "addStoreKey", "(Ljava/lang/String;Ljava/lang/String;)Lorg/onepf/oms/OpenIabHelper$Options$Builder;");
+		for (int i = 0; i < options->numStores; ++i)
+		{
+			jstring store = env->NewStringUTF(options->storeNames[i]);
+            jstring key = env->NewStringUTF(options->storeKeys[i]);
+			
+			env->CallObjectMethod(builder, mid, store, key);
+			
+			env->DeleteLocalRef(store);
+            env->DeleteLocalRef(key);
+		}
     }
+	
+	// Options.preferredStoreNames
+    if (options->numPreferredStoreNames > 0)
+    {
+		jmethodID mid = env->GetMethodID(builderClass, "addPreferredStoreName", "([Ljava/lang/String;)Lorg/onepf/oms/OpenIabHelper$Options$Builder;");
+		jobjectArray preferredStoreNames = MakeStringArray(options->preferredStoreNames, options->numPreferredStoreNames);
+		env->CallObjectMethod(builder, mid, preferredStoreNames);
+		env->DeleteLocalRef(preferredStoreNames);
+    }
+
+	// Options.availableStoreNames
+    if (options->numAvailableStoreNames > 0)
+    {
+		jmethodID mid = env->GetMethodID(builderClass, "addAvailableStoreNames", "([Ljava/lang/String;)Lorg/onepf/oms/OpenIabHelper$Options$Builder;");
+		jobjectArray availableStoreNames = MakeStringArray(options->availableStoreNames, options->numAvailableStoreNames);
+		env->CallObjectMethod(builder, mid, availableStoreNames);
+		env->DeleteLocalRef(availableStoreNames);
+    }
+	
+	// Options.samsungCertificationRequestCode
+	if (options->samsungCertificationRequestCode > -1)
+	{
+		jmethodID mid = env->GetMethodID(builderClass, "setSamsungCertificationRequestCode", "(I)Lorg/onepf/oms/OpenIabHelper$Options$Builder;");
+		env->CallObjectMethod(builder, mid, (jint) options->samsungCertificationRequestCode);
+	}
+	
+	// Build Options instance
+	jmethodID mid_build = env->GetMethodID(builderClass, "build", "()Lorg/onepf/oms/OpenIabHelper$Options;");
+	jobject j_options = env->CallObjectMethod(builder, mid_build);
+		
+	jobjectArray j_skuList = MakeStringArray(skuList, skuListCount);
+		
+    // Initialize at last
+    env->CallVoidMethod(g_Obj, g_init, j_options, j_skuList);
+    
+    env->DeleteLocalRef(j_options);
+	env->DeleteLocalRef(j_skuList);
 }
 
 void purchaseProduct_platform(const char* sku, const char* payload)

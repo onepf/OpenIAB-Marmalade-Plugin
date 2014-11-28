@@ -62,10 +62,18 @@ public class OpenIAB
     
     public SkuDetails getSkuDetails(String sku)
     {
-        if (!_inventory.hasDetails(sku)) {
+        if (_inventory == null || !_inventory.hasDetails(sku)) {
             return null;
         }
         return _inventory.getSkuDetails(sku);
+    }
+    
+    public List<Purchase> getPurchases()
+    {
+        if (_inventory == null) {
+            return new ArrayList<Purchase>();
+        }
+        return _inventory.getAllPurchases();
     }
     
     public void init(final OpenIabHelper.Options options, final String[] skus)
