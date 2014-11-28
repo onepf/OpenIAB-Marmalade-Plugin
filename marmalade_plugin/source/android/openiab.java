@@ -47,4 +47,12 @@ class openiab
     {
         
     }
+    public FIXME getPurchases()
+    {
+        
+    }
+    public int getPurchasesCount()
+    {
+        return 0;
+    }
 }
