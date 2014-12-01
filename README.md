@@ -74,8 +74,51 @@ OpenIabSkuDetails* getSkuDetails(const char* sku);
 OpenIabSkuDetails** getSkuListDetails(const char** skuList, int skuListCount);
 ```
 
+Options
+-------
+
+Create Options object.
+```
+OpenIabOptions* options = new OpenIabOptions();
+```
+
+Set store search strategy.
+```
+options->storeSearchStrategy = SEARCH_STRATEGY_INSTALLER_THEN_BEST_FIT;
+```
+
+Set available stores to restrict the set of stores to check.
+```
+options->numAvailableStoreNames = 1;
+options->availableStoreNames = new const char*[options->numAvailableStoreNames];
+options->availableStoreNames[0] = openiabStoreNames()->GOOGLE;
+```
+
+Set preferred store names (works only for store search strategy ```OpenIabHelper.Options.SEARCH_STRATEGY_BEST_FIT``` and ```OpenIabHelper.Options.SEARCH_STRATEGY_INSTALLER_THEN_BEST_FIT```).
+```
+options->numPreferredStoreNames = 1;
+options->preferredStoreNames = new const char*[options->numPreferredStoreNames];
+options->preferredStoreNames[0] = openiabStoreNames()->GOOGLE;
+```
+
+Set store keys.
+```
+const char *publicKey = "publicKey";
+
+options->numStores = 1;
+options->storeNames = new const char*[options->numStores];
+options->storeKeys = new const char*[options->numStores];
+options->storeNames[0] = openiabStoreNames()->GOOGLE;
+options->storeKeys[0] = publicKey;
+```
+
+Set verifying mode (applicable only for Google Play, Appland, Aptoide, AppMall, SlideMe, Yandex.Store).
+```
+options->verifyMode = VERIFY_SKIP;
+```
+
 Callbacks
-------------------
+---------
 
 Callbacks are buil-in functionality.
 In order to subscribe you need to pass callback ID and your handler function.
