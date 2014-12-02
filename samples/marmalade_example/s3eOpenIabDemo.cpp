@@ -15,7 +15,8 @@ const char* coinSku = "sku_coin_inner";
 const char* subSku = "sku_subs_inner";
 
 // note this is the public license key provided by Google, not the one you sign this app with, it's in the developer console under Services & APIs
-const char *publicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAixqRVmOe1akkTkeFS9ot8zERpdYVaziPRRKxMquWg7UUhZvi7YvV5UGVB7XUwP9LQVXndslUZmxj1XU1SeAERdHSfrAk7qcX6vYZJ023nxLXTe5lqLkPj9YQKlA39V5hp5rqi5oH8ZA6o2Eqrz9dISQXK+C84GkUvHggRsxfcdcO4sabWPcKW//io1eoiFANW3gKvXXpaovhWxtuJ/U4uB9t6WJLzUcnRP2eELCsbvucIYJKksIwmN3P22DDRV4ce43Fbld/eJGz8yXkEF6/wIyha6+tepZd6ix4B9RQVZYhEijAWA/yBSU5gMYrnFaC0jIZPmMUCnfglwwv1H+a4QIDAQAB";
+const char *googlePublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAixqRVmOe1akkTkeFS9ot8zERpdYVaziPRRKxMquWg7UUhZvi7YvV5UGVB7XUwP9LQVXndslUZmxj1XU1SeAERdHSfrAk7qcX6vYZJ023nxLXTe5lqLkPj9YQKlA39V5hp5rqi5oH8ZA6o2Eqrz9dISQXK+C84GkUvHggRsxfcdcO4sabWPcKW//io1eoiFANW3gKvXXpaovhWxtuJ/U4uB9t6WJLzUcnRP2eELCsbvucIYJKksIwmN3P22DDRV4ce43Fbld/eJGz8yXkEF6/wIyha6+tepZd6ix4B9RQVZYhEijAWA/yBSU5gMYrnFaC0jIZPmMUCnfglwwv1H+a4QIDAQAB";
+const char *yandexPublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArZDz1fTAYdwnmMpcynMjU8/d3G5eYyjUKQbnyYdEx6DOF+eZKNdk+Bp5H+yiAPQNlXe+5iybRKmAMCkmsaIRXPtiZHPm8Qe3fWLYPnL8lvJASXn1jci9+fXuGzjH83NebXnPAdhA3Nlgu5nw9pI2eKLjkjM4orogrPWb2/LAWQ3ag0D2XabH/jmrsI/EBs9VrW5RB26YgOCZBIe9/xUpHK6Oj93tvgAM/+8TCMWJMEnf3U9b/7RlvzcfaBAXsGthQJG91khdy+qY9ojq8oUp9V2eiNuF6YhW/CTwUzU8UMpIn8XqzffPRXK3Px48L6sLwAddWVrYpniTkezo50ZxgwIDAQAB";
 
 bool OnInitClick(void* data, CButton* button)
 {
@@ -28,8 +29,8 @@ bool OnInitClick(void* data, CButton* button)
 	options->numStores = 1;
 	options->storeNames = new const char*[options->numStores];
 	options->storeKeys = new const char*[options->numStores];
-	options->storeNames[0] = openiabStoreNames()->GOOGLE;
-	options->storeKeys[0] = publicKey;
+	options->storeNames[0] = openiabStoreNames()->YANDEX;
+	options->storeKeys[0] = yandexPublicKey;
 
 	options->verifyMode = VERIFY_SKIP;
     options->storeSearchStrategy = SEARCH_STRATEGY_INSTALLER_THEN_BEST_FIT;
@@ -40,7 +41,12 @@ bool OnInitClick(void* data, CButton* button)
 
 	options->numPreferredStoreNames = 1;
 	options->preferredStoreNames = new const char*[options->numPreferredStoreNames];
-	options->preferredStoreNames[0] = openiabStoreNames()->GOOGLE;
+	options->preferredStoreNames[0] = openiabStoreNames()->YANDEX;
+
+	options->numAvailableStoreNames = 1;
+	options->availableStoreNames = new const char*[options->numAvailableStoreNames];
+	options->availableStoreNames[0] = openiabStoreNames()->YANDEX;
+
 
 	const char** skuList = new const char*[3];
 	skuList[0] = hatSku;
@@ -207,9 +213,9 @@ int main()
     openiabRegister(OPENIAB_CONSUME_CALLBACK, ConsumeCallback, ui);
 
     // Map SKUs
-    mapSku(hatSku, openiabStoreNames()->GOOGLE, "sku_hat");
-    mapSku(coinSku, openiabStoreNames()->GOOGLE, "sku_coin");
-    mapSku(subSku, openiabStoreNames()->GOOGLE, "sku_subs");
+    mapSku(hatSku, openiabStoreNames()->YANDEX, "sku_hat");
+	mapSku(coinSku, openiabStoreNames()->YANDEX, "sku_coin");
+	mapSku(subSku, openiabStoreNames()->YANDEX, "sku_subs");
 
 	// App loop
 	while (true)
