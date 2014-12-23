@@ -38,7 +38,7 @@ if {{ not defined IW_MKF_IWCRT}}
 deployments
 {
 	android-external-jars="lib/android/classes.jar"
-	android-external-jars="lib/android/in-app-purchasing-2.0.0.jar"
+	android-external-jars="lib/android/in-app-purchasing-2.0.1.jar"
     android-external-jars="lib/android/openiab.jar"
     android-so="lib/android/libopeniab.so"
 	android-extra-application-manifest="source/android/manifest/Activity.xml"
